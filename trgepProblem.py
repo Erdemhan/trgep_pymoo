@@ -1,5 +1,4 @@
 import numpy as np
-import random
 from pymoo.core.problem import ElementwiseProblem
 from pymoo.core.variable import Real, Integer
 import trgep_toolbox as trgeptb
@@ -9,10 +8,10 @@ import copy
 
 class TrgepProblem(ElementwiseProblem):
     # Penalty Factor
-    PF =100.0
+    PF =5.0
     # Penalty Generation Exponent
-    PGE = 1.1
-    capPGE = PGE*1.2
+    PGE = 1.4
+    capPGE = PGE
     pdemPGE = PGE
     
     genCtr = 0 
@@ -29,10 +28,37 @@ class TrgepProblem(ElementwiseProblem):
         for k in range(176, 352):
             variables[f"x{k:02}"] = Integer(bounds=(0, data['climit'][k%11]))
 
-        super().__init__(vars=variables, n_obj=2 , **kwargs)
+        super().__init__(vars=variables, n_obj=2 ,n_ieq_constr=5 , **kwargs)
 
 
+    def _penalty(self,x):
+        nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
 
+        return nucp,capp,demp,pdemp,climp
+    
+    def _penalty_manuel(self,x,f1,f2=0):
+        nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
+        o1 = copy.deepcopy(f1)
+        o2 = copy.deepcopy(f2)
+        if nucp>0:
+            o1 += ((self.PF*nucp))*(((self.genCtr)+1)**self.PGE)
+            o2 += ((self.PF*nucp))*(((self.genCtr)+1)**self.PGE)
+        if capp>0:
+            o1 += (self.PF*capp)*(((self.genCtr)+1)**self.capPGE)
+            o2 += (self.PF*capp)*(((self.genCtr)+1)**self.capPGE)
+        if demp>0:
+            o1 += ((self.PF*demp))*(((self.genCtr)+1)**self.PGE)
+            o2 += ((self.PF*demp))*(((self.genCtr)+1)**self.PGE)  
+        if pdemp>0:
+            o1 += ((self.PF*pdemp))*(((self.genCtr)+1)**self.pdemPGE)
+            o2 += ((self.PF*pdemp))*(((self.genCtr)+1)**self.pdemPGE)
+        if nucp>0:
+            o1 += ((self.PF*climp))*(((self.genCtr)+1)**self.PGE)
+            o2 += ((self.PF*climp))*(((self.genCtr)+1)**self.PGE)
+        
+        self.genCtr += 1
+
+        return o1,o2,nucp,capp,demp,pdemp,climp
 
     def _evaluate(self, x, out, *args, **kwargs):
         x = np.array([x[f"x{k:02}"] for k in range(0, 352)])
@@ -59,28 +85,11 @@ class TrgepProblem(ElementwiseProblem):
                 costMnt += totalUnitsMW[unitType]  *  data['omcost'][year][unitType]
         
         f1 = costMnt + costInvest + costProd
-
         f2 = emission
 
-        nucp,capp,demp,pdemp,climp = trgeptb.const_check(x,data)
-
-        if nucp>0:
-            f1 += ((self.PF*nucp))*(((self.genCtr//40)+1)**self.PGE)
-            f2 += ((self.PF*nucp))*(((self.genCtr//40)+1)**self.PGE)
-        if capp>0:
-            f1 += (self.PF*capp)*(((self.genCtr//40)+1)**self.capPGE)
-            f2 += (self.PF*capp)*(((self.genCtr//40)+1)**self.capPGE)
-        if demp>0:
-            f1 += ((self.PF*demp))*(((self.genCtr//40)+1)**self.PGE)
-            f2 += ((self.PF*demp))*(((self.genCtr//40)+1)**self.PGE)  
-        if pdemp>0:
-            f1 += ((self.PF*pdemp))*(((self.genCtr//40)+1)**self.pdemPGE)
-            f2 += ((self.PF*pdemp))*(((self.genCtr//40)+1)**self.pdemPGE)
-        if nucp>0:
-            f1 += ((self.PF*climp))*(((self.genCtr//40)+1)**self.PGE)
-            f2 += ((self.PF*climp))*(((self.genCtr//40)+1)**self.PGE)
-
-        self.genCtr += 1
-
-        
+        nucp,capp,demp,pdemp,climp = self._penalty(x)
+        #nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
         out["F"] = np.column_stack([f1,f2])
+        out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])
+        # out["F"] = f1
+

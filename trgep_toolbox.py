@@ -4,6 +4,8 @@ import constst_debug as cdbg
 import numpy as np
 import copy 
 import read_population as pop_reader
+from trgepRepair import TrgepRepair
+from result import print_result
 
 data = reader.read()
 
@@ -60,3 +62,9 @@ def const_check_debug(individual,data):
 
 def read_population():
     return pop_reader.read()
+
+def repair():
+    return TrgepRepair()
+
+def show_result(problem,res):
+    print_result(problem,res)

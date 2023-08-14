@@ -4,6 +4,10 @@ import numpy as np
 def pop_as_list():
     df = pd.read_excel('initial_pop_40.xlsx',engine='openpyxl', sheet_name=None)
     return df['pop'].values.tolist()
+#in_pop_cost_20
+#in_pop_em_20
+#initial_pop_40
+
 
 def list_to_dict(list):
     vars = dict()

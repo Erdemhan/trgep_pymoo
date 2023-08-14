@@ -2,6 +2,8 @@ import copy
 import numpy as np
 from deap import  creator
 
+capConstaintDict = dict()
+nucConstraintInd = dict()
 datas = []
 # Kaynakların her yıl için kapasitesini üretir 16x11 matris dönderiyor
 def kapasite_hesapla_cumulative(inv_genes):
@@ -42,14 +44,7 @@ def check_constraints(individual,data):
     investedNum = individual[16:32, :]
     capacities = kapasite_hesapla_cumulative(individual[16:32, :])
 
-    totalFark = 0.0
-
-    totalFark += nuclear_constraint(investedNum) 
-    totalFark += capacity_constraint(genAmount, capacities)
-    totalFark += demand_constraint(genAmount, demands)
-    totalFark += peak_demand_constraint(peakDemand, capacities)
-    totalFark += construction_limit_constraint(investedNum, constructionLimit)
-    return nuclear_constraint(investedNum),capacity_constraint(genAmount, capacities),demand_constraint(genAmount, demands),peak_demand_constraint(peakDemand, capacities),construction_limit_constraint(investedNum, constructionLimit)
+    return nuclear_constraint(investedNum),capacity_constraint(genAmount, capacities),demand_constraint(genAmount, demands),peak_demand_constraint(peakDemand, capacities),construction_limit_constraint(investedNum, constructionLimit),capConstaintDict,nucConstraintInd
 
 
 # mwh dogru
@@ -69,12 +64,16 @@ def demand_constraint(genAmount, demands):
 
 #mwh olacak dogru
 def capacity_constraint(birey, capacities):  # whatsapp
+    capConstaintDict.clear()
     fark = 0.0
+    key = 0
     for year in range(16):
         for unitType in range(11):
             if birey[year][unitType] > capacities[year][unitType]:
                     fark = birey[year][unitType] - capacities[year][unitType]
-
+                    capConstaintDict[f'x{key:02}'] = fark
+                    fark += fark
+            key += 1
     return fark
 
 
@@ -108,10 +107,11 @@ def construction_limit_constraint(investedNum, constructionLimit):
 
 def nuclear_constraint(investedNum):
     fark = 0.0
-
+    key = 0
     for year in range(11):
         if investedNum[year][5] != 0:  # 5 for nuclear
             fark = investedNum[year][5]
+            nucConstraintInd[f'x{key:02}'] = fark
     
     return fark
 
