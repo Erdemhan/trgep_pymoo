@@ -39,6 +39,18 @@ def divide_feasible(res):
             if_pop_res.append(ind.F)
     return np.array(f_pop_res),np.array(if_pop_res)
 
+def divide_feasible_init(pop):   
+    f_pop_res = []
+    if_pop_res = []
+    for ind in pop:
+        nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(np.array(list(ind.X.values())),trgeptb.data)
+        total = nucp+capp+demp+pdemp+climp
+        if total == 0:
+            f_pop_res.append(ind.F)
+        else:
+            if_pop_res.append(ind.F)
+    return np.array(f_pop_res),np.array(if_pop_res)
+
 def draw(problem,res):
     f_pop_res,if_pop_res = divide_feasible(res)
     plot = Scatter()
@@ -47,5 +59,15 @@ def draw(problem,res):
         plot.add(f_pop_res, facecolor="none", edgecolor="blue")
     if len(if_pop_res) > 0:
         plot.add(if_pop_res, facecolor="none", edgecolor="red")
+    plot.add(trgeptb.pareto_list(),facecolor="none", edgecolor="green")
     plot.show()
 
+def draw_pop(problem,pop):
+    f_pop_res,if_pop_res = divide_feasible_init(pop)
+    plot = Scatter()
+    plot.add(problem.pareto_front(), plot_type="line", color="black", alpha=0.7)
+    if len(f_pop_res) > 0:
+        plot.add(f_pop_res, facecolor="none", edgecolor="blue")
+    if len(if_pop_res) > 0:
+        plot.add(if_pop_res, facecolor="none", edgecolor="red")
+    plot.show()

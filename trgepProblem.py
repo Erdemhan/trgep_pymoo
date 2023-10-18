@@ -6,36 +6,45 @@ import copy
 
 
 
+# PROBLEMİN TANIMI
 class TrgepProblem(ElementwiseProblem):
+    # CEZA İÇİN SABİTLER
     # Penalty Factor
-    PF =5.0
+    PF =1
     # Penalty Generation Exponent
-    PGE = 1.4
+    PGE = 1.1
     capPGE = PGE
     pdemPGE = PGE
     
     genCtr = 0 
 
+    # BİREYLERİN YAPISININ TANIMI
     def __init__(self, **kwargs):
 
+        #read_excel.py ı kullanarak klısıtların olduğu exceldeki verileri alıyor
         data = trgeptb.data
 
         variables = dict()
 
+        # İLK 176 GEN FLOAT VE ARALIĞI FAZLA
         for k in range(0, 176):
             variables[f"x{k:02}"] = Real(bounds=(0.0, 146458237*2.2))
 
+        # İKİNCİ 176 GEN INTEGER VE ARALIĞI CLİMİT
         for k in range(176, 352):
             variables[f"x{k:02}"] = Integer(bounds=(0, data['climit'][k%11]))
 
-        super().__init__(vars=variables, n_obj=2 ,n_ieq_constr=5 , **kwargs)
+        # n_obj ama. sayısı , n_ieq_constr constraint sayısı , 
+        super().__init__(vars=variables, n_obj=2 , **kwargs)
 
 
+    # VIOLATIONLARI consts.py 'ı kullanarak hesaplıyor
     def _penalty(self,x):
         nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
 
         return nucp,capp,demp,pdemp,climp
     
+    # VIOLATIONLARI penalty factor ve pge ile çarparak dönderiyor -> bu fonksiyonu evaluate(cost function) çağırıyor
     def _penalty_manuel(self,x,f1,f2=0):
         nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
         o1 = copy.deepcopy(f1)
@@ -58,8 +67,10 @@ class TrgepProblem(ElementwiseProblem):
         
         self.genCtr += 1
 
-        return o1,o2,nucp,capp,demp,pdemp,climp
+        return o1,o2
 
+
+    # COST FUNCTİON COSTU HESAPLAYIP CEZAYI ÜZERİNE EKLİYOR
     def _evaluate(self, x, out, *args, **kwargs):
         x = np.array([x[f"x{k:02}"] for k in range(0, 352)])
         
@@ -87,9 +98,11 @@ class TrgepProblem(ElementwiseProblem):
         f1 = costMnt + costInvest + costProd
         f2 = emission
 
-        nucp,capp,demp,pdemp,climp = self._penalty(x)
+        f1,f2 = self._penalty_manuel(x,f1,f2)
+
+        #nucp,capp,demp,pdemp,climp = self._penalty(x)
         #nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
         out["F"] = np.column_stack([f1,f2])
-        out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])
+        # out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])
         # out["F"] = f1
 

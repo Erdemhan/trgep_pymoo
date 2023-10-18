@@ -18,10 +18,11 @@ from pymoo.operators.crossover.sbx import SimulatedBinaryCrossover
 from pymoo.operators.crossover.pntx import PointCrossover
 from pymoo.operators.repair.rounding import RoundingRepair
 from pymoo.constraints.adaptive import AdaptiveConstraintHandling
+import pandas as pd
 
 # PARAMETERS
-NPOP = 40
-NGEN = 120
+NPOP = 80
+NGEN = 220
 SEED = 1
 
 # DEFINITIONS
@@ -29,8 +30,8 @@ SEED = 1
 
 problem = trgepProblem.TrgepProblem()
 crossovert = {
-                Real: PointCrossover(n_points=5),
-                Integer: PointCrossover(n_points=5),
+                Real: PointCrossover(n_points=2),
+                Integer: SimulatedBinaryCrossover(vtype=float,repair=RoundingRepair()),
             }
 mutationt = {
                 Real: PolynomialMutation(prob=0.02,eta=9999),
@@ -39,19 +40,21 @@ mutationt = {
 
 
 # INITIALIZE POPULATION
+#in_pop_cost_20
+#in_pop_em_20
+#initial_pop_40
+#best80_2f
 def init_population():
-    pop = Population.new("X", trgeptb.read_population())
+    pop = Population.new("X", trgeptb.read_population('initial_pop_40.xlsx'))
     Evaluator().eval(problem, pop)
     return pop
 
 
 # ALGORITHM
 algorithm = NSGA2(pop_size=NPOP,
-                  sampling=init_population() , # init_population(), MixedVariableSampling()
+                  sampling=init_population(), # init_population(), MixedVariableSampling()
                   mating=MixedVariableMating(eliminate_duplicates=MixedVariableDuplicateElimination(),
-                                             repair=trgeptb.repair(),
-                                             crossover=crossovert,
-                                             mutation=mutationt
+                                             repair=trgeptb.repair()
                                              ),
                   eliminate_duplicates=MixedVariableDuplicateElimination(),
                   )
@@ -63,5 +66,6 @@ res = minimize(problem, #AdaptiveConstraintHandling(problem)
                seed = SEED,
                verbose=True)
 
-
+print(SEED)
+#trgeptb.pop_to_excel(res.pop)
 trgeptb.show_result(problem,res)

@@ -32,7 +32,7 @@ def kapasite_hesapla_yil_mwh(inv_genes_v,exist):
     return temp
 
 
-
+# ILK ÇALIŞAN FONKSİYON
 def check_constraints(individual,data):
     global datas
     datas = data
@@ -48,6 +48,7 @@ def check_constraints(individual,data):
 
 
 # mwh dogru
+# DEMAND VIOILATION HESAPLIYOR
 def demand_constraint(genAmount, demands):
     annualProd = 0.0
     fark = 0.0
@@ -63,6 +64,7 @@ def demand_constraint(genAmount, demands):
 
 
 #mwh olacak dogru
+# KAPASITE VIOLATION
 def capacity_constraint(birey, capacities):  # whatsapp
     capConstaintDict.clear()
     fark = 0.0
@@ -104,7 +106,7 @@ def construction_limit_constraint(investedNum, constructionLimit):
     return fark
 
 
-
+# NUKLEER VIOLATION
 def nuclear_constraint(investedNum):
     fark = 0.0
     key = 0

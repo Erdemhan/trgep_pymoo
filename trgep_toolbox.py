@@ -22,6 +22,8 @@ def kapasite_hesapla_cumulative(genes):
         kapasiteler.append(kapasite_hesapla_yil_mwh(genes[0:i+1],exist))
 
     return kapasiteler
+
+
 # 1x11 Vektör şeklinde yıllık kapasiteleri dönderiyor
 def kapasite_hesapla_yil_mwh(inv_genes_v,exist):
     kapasiteler = np.empty(11)
@@ -37,16 +39,19 @@ def kapasite_hesapla_yil_mwh(inv_genes_v,exist):
 
 
 # Vektörü 11*16  matris e çeviriyor , is generation True ise 0:176 (generation genleri) False ise 176:352 (investment genleri)
-def reshape_to_matrix(vector,is_generation=True,is_full=True):
+def reshape_to_matrix(vector,is_generation=True,is_full=False):
+    gene_len = 16
     if is_full:
+        gene_len = 32
+    else:
         if is_generation:
             vector = vector[:176]
         else:
             vector = vector[176:]
-    matrix = [ [ 0 for i in range(11) ] for j in range(16) ]
+    matrix = [ [ 0 for i in range(11) ] for j in range(gene_len) ]
     ctr = 0
 
-    for i in range(16):
+    for i in range(gene_len):
         for j in range(11):
             matrix[i][j] = vector[ctr]
             ctr +=1
@@ -54,17 +59,28 @@ def reshape_to_matrix(vector,is_generation=True,is_full=True):
     return matrix
 
 
+# consts.py'ı kullanarak violationları hesaplıyor
 def const_check(individual,data):
     return const.check_constraints(individual,data)
 
+# constst_debug.py'ı kullanarak violationları nukleer , kapasite gibi ayrı ayrı dönderiyor
 def const_check_debug(individual,data):
     return cdbg.check_constraints(individual,data)
 
-def read_population():
-    return pop_reader.read()
+# read_population.py'ı kullanarak başlangıç populasyonunun olduğu excel'i okuyarak dictionary 'e çeviriyor
+def read_population(path):
+    return pop_reader.read(path)
 
+# trgepRepair.py fonksiyonun dönderiyor
 def repair():
     return TrgepRepair()
 
+# result.py'ı kullanarak sonuçları tek amaç fonksiyonlu ise yazdırıyor , çift amaç fonksiyonlu ise grafik çizdiriyor
 def show_result(problem,res):
     print_result(problem,res)
+
+def pop_to_excel(pop):
+    pop_reader.pop_to_excel(pop)
+
+def pareto_list():
+    return np.array(reader.read_pareto())
