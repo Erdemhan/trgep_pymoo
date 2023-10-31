@@ -31,6 +31,7 @@ SEED = 1
 # DEFINITIONS
 # PROBLEM
 
+<<<<<<< HEAD
 problem = trgepProblem.TrgepProblem()
 #problem = get_problem("carside")
 '''
@@ -40,6 +41,9 @@ MW5 	15 2 3
 Carside 7 3 10
 '''
 
+=======
+problem = trgepProblem.TrgepProblem(NPOP=NPOP)
+>>>>>>> master
 crossovert = {
                 Real: PointCrossover(n_points=5),
                 Integer: SimulatedBinaryCrossover(vtype=float,repair=RoundingRepair()),
@@ -62,8 +66,13 @@ def init_population():
 
 
 # ALGORITHM
+<<<<<<< HEAD
 algorithm_old = NSGA2(pop_size=NPOP,
                   sampling=MixedVariableSampling(), # init_population(), MixedVariableSampling()
+=======
+algorithm = NSGA2(pop_size=NPOP,
+                  sampling= MixedVariableSampling(), # init_population(), MixedVariableSampling()
+>>>>>>> master
                   mating=MixedVariableMating(eliminate_duplicates=MixedVariableDuplicateElimination(),
                                              #repair=trgeptb.repair()
                                              ),
@@ -94,8 +103,3 @@ res = minimize(problem,
 print(SEED)
 #trgeptb.pop_to_excel(res.pop)
 trgeptb.show_result(problem,res)
-
-plot = Scatter()
-plot.add(problem.pareto_front(), plot_type="line", color="black", alpha=0.7)
-plot.add(res.F, facecolor="none", edgecolor="red")
-plot.show()

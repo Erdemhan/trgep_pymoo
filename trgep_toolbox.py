@@ -5,7 +5,7 @@ import numpy as np
 import copy 
 import read_population as pop_reader
 from trgepRepair import TrgepRepair
-from result import print_result
+from result import print_result,draw_pop
 
 data = reader.read()
 
@@ -84,3 +84,6 @@ def pop_to_excel(pop):
 
 def pareto_list():
     return np.array(reader.read_pareto())
+
+def show_pop(problem,pop):
+    draw_pop(problem,pop)

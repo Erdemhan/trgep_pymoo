@@ -9,19 +9,27 @@ import copy
 class TrgepProblem(ElementwiseProblem):
     # CEZA İÇİN SABİTLER
     # Penalty Factor
+<<<<<<< HEAD
     PF = 2.7
     # Penalty Generation Exponent
     PGE = 1.19
+=======
+    PF =50
+    # Penalty Generation Exponent
+    PGE = 1.6
+>>>>>>> master
     capPGE = PGE
     pdemPGE = PGE
+    NPOP = 0
     
     genCtr = 0 
 
     # BİREYLERİN YAPISININ TANIMI
-    def __init__(self, **kwargs):
+    def __init__(self,NPOP, **kwargs):
 
         #read_excel.py ı kullanarak klısıtların olduğu exceldeki verileri alıyor
         data = trgeptb.data
+        self.NPOP=NPOP
 
         variables = dict()
 
@@ -45,28 +53,36 @@ class TrgepProblem(ElementwiseProblem):
         return nucp,capp,demp,pdemp,climp
     
     # VIOLATIONLARI penalty factor ve pge ile çarparak dönderiyor -> bu fonksiyonu evaluate(cost function) çağırıyor
-    def _penalty_manuel(self,x,f1,f2=0):
+    def _penalty_manuel(self,x,f1=0,f2=0):
         nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
         o1 = copy.deepcopy(f1)
         o2 = copy.deepcopy(f2)
+        pCtr= (self.genCtr // self.NPOP) + 2
+
+
         if nucp>0:
-            o1 += ((self.PF*nucp))*(((self.genCtr)+1)**self.PGE)
-            o2 += ((self.PF*nucp))*(((self.genCtr)+1)**self.PGE)
+            o1 += (self.PF*nucp)*((pCtr)**self.PGE)
+            o2 += (self.PF*nucp)*((pCtr)**self.PGE)
         if capp>0:
-            o1 += (self.PF*capp)*(((self.genCtr)+1)**self.capPGE)
-            o2 += (self.PF*capp)*(((self.genCtr)+1)**self.capPGE)
+            o1 += (self.PF*capp)*((pCtr)**self.capPGE)
+            o2 += (self.PF*capp)*((pCtr)**self.capPGE)
         if demp>0:
-            o1 += ((self.PF*demp))*(((self.genCtr)+1)**self.PGE)
-            o2 += ((self.PF*demp))*(((self.genCtr)+1)**self.PGE)  
+            o1 += (self.PF*demp)*((pCtr)**self.PGE)
+            o2 += (self.PF*demp)*((pCtr)**self.PGE)  
         if pdemp>0:
-            o1 += ((self.PF*pdemp))*(((self.genCtr)+1)**self.pdemPGE)
-            o2 += ((self.PF*pdemp))*(((self.genCtr)+1)**self.pdemPGE)
+            o1 += (self.PF*pdemp)*((pCtr)**self.pdemPGE)
+            o2 += (self.PF*pdemp)*((pCtr)**self.pdemPGE)
         if nucp>0:
-            o1 += ((self.PF*climp))*(((self.genCtr)+1)**self.PGE)
-            o2 += ((self.PF*climp))*(((self.genCtr)+1)**self.PGE)
+            o1 += (self.PF*climp)*((pCtr)**self.PGE)
+            o2 += (self.PF*climp)*((pCtr)**self.PGE)
         
+<<<<<<< HEAD
         #self.genCtr += 1
         #genCtr = algorithm_old.n_gen
+=======
+        self.genCtr +=1
+
+>>>>>>> master
         return o1,o2
 
 
