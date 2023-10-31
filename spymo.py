@@ -28,7 +28,7 @@ SEED = 1
 # DEFINITIONS
 # PROBLEM
 
-problem = trgepProblem.TrgepProblem()
+problem = trgepProblem.TrgepProblem(NPOP=NPOP)
 crossovert = {
                 Real: PointCrossover(n_points=2),
                 Integer: SimulatedBinaryCrossover(vtype=float,repair=RoundingRepair()),
@@ -52,7 +52,7 @@ def init_population():
 
 # ALGORITHM
 algorithm = NSGA2(pop_size=NPOP,
-                  sampling=init_population(), # init_population(), MixedVariableSampling()
+                  sampling= MixedVariableSampling(), # init_population(), MixedVariableSampling()
                   mating=MixedVariableMating(eliminate_duplicates=MixedVariableDuplicateElimination(),
                                              repair=trgeptb.repair()
                                              ),
@@ -69,3 +69,4 @@ res = minimize(problem, #AdaptiveConstraintHandling(problem)
 print(SEED)
 #trgeptb.pop_to_excel(res.pop)
 trgeptb.show_result(problem,res)
+trgeptb.show_pop(problem,res.pop)
