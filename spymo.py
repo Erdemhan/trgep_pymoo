@@ -19,18 +19,29 @@ from pymoo.operators.crossover.pntx import PointCrossover
 from pymoo.operators.repair.rounding import RoundingRepair
 from pymoo.constraints.adaptive import AdaptiveConstraintHandling
 import pandas as pd
+from pymoo.algorithms.moo.nsga2 import binary_tournament
+from pymoo.problems import get_problem
+from pymoo.core.callback import Callback
 
 # PARAMETERS
-NPOP = 80
-NGEN = 220
+NPOP = 100
+NGEN = 200
 SEED = 1
 
 # DEFINITIONS
 # PROBLEM
 
 problem = trgepProblem.TrgepProblem()
+#problem = get_problem("carside")
+'''
+ZDT4 	10 2 0
+ZDT5 	80 2 0
+MW5 	15 2 3
+Carside 7 3 10
+'''
+
 crossovert = {
-                Real: PointCrossover(n_points=2),
+                Real: PointCrossover(n_points=5),
                 Integer: SimulatedBinaryCrossover(vtype=float,repair=RoundingRepair()),
             }
 mutationt = {
@@ -51,21 +62,40 @@ def init_population():
 
 
 # ALGORITHM
-algorithm = NSGA2(pop_size=NPOP,
-                  sampling=init_population(), # init_population(), MixedVariableSampling()
+algorithm_old = NSGA2(pop_size=NPOP,
+                  sampling=MixedVariableSampling(), # init_population(), MixedVariableSampling()
                   mating=MixedVariableMating(eliminate_duplicates=MixedVariableDuplicateElimination(),
-                                             repair=trgeptb.repair()
+                                             #repair=trgeptb.repair()
                                              ),
+                  #survival=binary_tournament(),                           
                   eliminate_duplicates=MixedVariableDuplicateElimination(),
                   )
 
+class MyCallback(Callback):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.genC = trgepProblem.TrgepProblem.genCtr 
+
+    def notify(self, algorithm):
+        #self.data["best"].append(algorithm.pop.get("F").min())
+        trgepProblem.TrgepProblem.genCtr += 1
+
+#algorithm = NSGA2()
+
 # RUN
-res = minimize(problem, #AdaptiveConstraintHandling(problem)
-               algorithm,
+res = minimize(problem,
+               algorithm_old,
                ('n_gen', NGEN),
+               callback = MyCallback(),
                seed = SEED,
                verbose=True)
 
 print(SEED)
 #trgeptb.pop_to_excel(res.pop)
 trgeptb.show_result(problem,res)
+
+plot = Scatter()
+plot.add(problem.pareto_front(), plot_type="line", color="black", alpha=0.7)
+plot.add(res.F, facecolor="none", edgecolor="red")
+plot.show()

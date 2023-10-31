@@ -5,14 +5,13 @@ import trgep_toolbox as trgeptb
 import copy
 
 
-
 # PROBLEMİN TANIMI
 class TrgepProblem(ElementwiseProblem):
     # CEZA İÇİN SABİTLER
     # Penalty Factor
-    PF =1
+    PF = 2.7
     # Penalty Generation Exponent
-    PGE = 1.1
+    PGE = 1.19
     capPGE = PGE
     pdemPGE = PGE
     
@@ -35,7 +34,8 @@ class TrgepProblem(ElementwiseProblem):
             variables[f"x{k:02}"] = Integer(bounds=(0, data['climit'][k%11]))
 
         # n_obj ama. sayısı , n_ieq_constr constraint sayısı , 
-        super().__init__(vars=variables, n_obj=2 , **kwargs)
+        #super().__init__(vars=variables, n_obj=2, n_ieq_constr=2, **kwargs)
+        super().__init__(vars=variables, n_obj=2, **kwargs)
 
 
     # VIOLATIONLARI consts.py 'ı kullanarak hesaplıyor
@@ -65,8 +65,8 @@ class TrgepProblem(ElementwiseProblem):
             o1 += ((self.PF*climp))*(((self.genCtr)+1)**self.PGE)
             o2 += ((self.PF*climp))*(((self.genCtr)+1)**self.PGE)
         
-        self.genCtr += 1
-
+        #self.genCtr += 1
+        #genCtr = algorithm_old.n_gen
         return o1,o2
 
 
@@ -98,11 +98,13 @@ class TrgepProblem(ElementwiseProblem):
         f1 = costMnt + costInvest + costProd
         f2 = emission
 
-        f1,f2 = self._penalty_manuel(x,f1,f2)
+        #f1,f2 = self._penalty_manuel(x,f1,f2)
+        o1,o2 = self._penalty_manuel(x,f1,f2)
 
         #nucp,capp,demp,pdemp,climp = self._penalty(x)
         #nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
         out["F"] = np.column_stack([f1,f2])
-        # out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])
+        #out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])
+        #out["G"] = np.column_stack([o1, o2])
         # out["F"] = f1
 

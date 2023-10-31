@@ -8,7 +8,7 @@ import pandas as pd
 def print_result(problem,res):
     print('Time: ', res.exec_time)
     if not problem.n_obj == 1:
-        #print_multi(res)
+        print_multi(res)
         draw(problem,res)
     else:
         print_one(res)
