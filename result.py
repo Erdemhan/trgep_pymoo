@@ -2,6 +2,7 @@ import trgep_toolbox as trgeptb
 import numpy as np
 from pymoo.visualization.scatter import Scatter
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 # PRINT RESULT
@@ -21,12 +22,21 @@ def print_one(res):
     df = pd.DataFrame(x)
     df.to_excel('best.xlsx', index=False, header=False)
 
+    
+
 def print_multi(res):
     for t in range(len(res.F)):
         print(str(res.F[t][0])[:3] , "e" , len(str(int(res.F[t][0])))-3 , "          " , str(res.F[t][1])[:3] , "e" , len(str(int(res.F[t][1])))-3)
         x = np.array([res.X[t][f"x{k:02}"] for k in range(0, 352)])
         trgeptb.const_check_debug(x,trgeptb.data)
 
+    val = res.algorithm.callback.data["best"]
+    plt.suptitle('Convergence')
+    plt.ylabel("best at gen")
+    plt.xlabel("gen")
+    plt.plot(np.arange(len(val)), val)
+    plt.show()
+    
 def divide_feasible(res):   
     f_pop_res = []
     if_pop_res = []

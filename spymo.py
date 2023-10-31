@@ -3,6 +3,7 @@ from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.mixed import MixedVariableMating,MixedVariableSampling, MixedVariableDuplicateElimination
 from pymoo.optimize import minimize
 import trgep_toolbox as trgeptb
+import matplotlib.pyplot as plt
 from pymoo.core.evaluator import Evaluator
 from pymoo.core.population import Population
 import numpy as np
@@ -10,7 +11,6 @@ from pymoo.visualization.scatter import Scatter
 import pandas as pd
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.optimize import minimize
-from pymoo.visualization.scatter import Scatter
 from pymoo.operators.mutation.pm import PolynomialMutation
 from pymoo.core.variable import Real, Integer
 from pymoo.operators.crossover.expx import ExponentialCrossover
@@ -22,17 +22,18 @@ import pandas as pd
 from pymoo.algorithms.moo.nsga2 import binary_tournament
 from pymoo.problems import get_problem
 from pymoo.core.callback import Callback
+from pymoo.core.mixed import MixedVariableGA
 
 # PARAMETERS
-NPOP = 100
-NGEN = 200
+NPOP = 300
+NGEN = 500
+
 SEED = 1
 
 # DEFINITIONS
 # PROBLEM
 
-<<<<<<< HEAD
-problem = trgepProblem.TrgepProblem()
+problem = trgepProblem.TrgepProblem(NPOP=NPOP)
 #problem = get_problem("carside")
 '''
 ZDT4 	10 2 0
@@ -41,16 +42,13 @@ MW5 	15 2 3
 Carside 7 3 10
 '''
 
-=======
-problem = trgepProblem.TrgepProblem(NPOP=NPOP)
->>>>>>> master
 crossovert = {
                 Real: PointCrossover(n_points=5),
                 Integer: SimulatedBinaryCrossover(vtype=float,repair=RoundingRepair()),
             }
 mutationt = {
-                Real: PolynomialMutation(prob=0.02,eta=9999),
-                Integer: PolynomialMutation(prob=0.02,eta=0.1,vtype=float, repair=RoundingRepair()),
+                Real: PolynomialMutation(prob=0.15,eta=9999),
+                Integer: PolynomialMutation(prob=0.15,eta=0.1,vtype=float, repair=RoundingRepair()),
             }
 
 
@@ -66,19 +64,29 @@ def init_population():
 
 
 # ALGORITHM
-<<<<<<< HEAD
-algorithm_old = NSGA2(pop_size=NPOP,
+algorithm_old = NSGA2(
+                  pop_size=NPOP,
                   sampling=MixedVariableSampling(), # init_population(), MixedVariableSampling()
-=======
-algorithm = NSGA2(pop_size=NPOP,
-                  sampling= MixedVariableSampling(), # init_population(), MixedVariableSampling()
->>>>>>> master
                   mating=MixedVariableMating(eliminate_duplicates=MixedVariableDuplicateElimination(),
-                                             #repair=trgeptb.repair()
+                                             repair=trgeptb.repair()
                                              ),
                   #survival=binary_tournament(),                           
                   eliminate_duplicates=MixedVariableDuplicateElimination(),
                   )
+
+algorithmMixed = MixedVariableGA(
+    pop_size=NPOP,
+    n_offsprings=200,
+    sampling=MixedVariableSampling(), #MixedVariableSampling(), init_population()
+    mating=MixedVariableMating( eliminate_duplicates=MixedVariableDuplicateElimination(),
+                                repair=trgeptb.repair(),
+                                crossover=crossovert,
+                                mutation=mutationt,
+                                #selection=selectiont,
+                              ),
+    #sampling= init_population(),
+                                )
+
 
 class MyCallback(Callback):
 
@@ -90,16 +98,29 @@ class MyCallback(Callback):
         #self.data["best"].append(algorithm.pop.get("F").min())
         trgepProblem.TrgepProblem.genCtr += 1
 
+class convergenceCallback(Callback):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.data["best"] = []
+
+    def notify(self, algorithm):
+        self.data["best"].append(algorithm.pop.get("F").min())
+
 #algorithm = NSGA2()
 
 # RUN
 res = minimize(problem,
                algorithm_old,
+               #algorithmMixed,
                ('n_gen', NGEN),
-               callback = MyCallback(),
+               callback = convergenceCallback(),
                seed = SEED,
                verbose=True)
 
 print(SEED)
 #trgeptb.pop_to_excel(res.pop)
 trgeptb.show_result(problem,res)
+
+
+

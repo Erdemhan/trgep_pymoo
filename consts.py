@@ -109,12 +109,12 @@ def construction_limit_constraint(investedNum, constructionLimit):
 # NUKLEER VIOLATION
 def nuclear_constraint(investedNum):
     fark = 0.0
-    key = 0
-    for year in range(11):
+    key = 181
+    for year in range(16):
         if investedNum[year][5] != 0:  # 5 for nuclear
             fark = investedNum[year][5]
             nucConstraintInd[f'x{key:02}'] = fark
-    
+        key += 11
     return fark
 
 

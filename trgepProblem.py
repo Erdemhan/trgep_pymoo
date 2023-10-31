@@ -9,15 +9,9 @@ import copy
 class TrgepProblem(ElementwiseProblem):
     # CEZA İÇİN SABİTLER
     # Penalty Factor
-<<<<<<< HEAD
-    PF = 2.7
-    # Penalty Generation Exponent
-    PGE = 1.19
-=======
     PF =50
     # Penalty Generation Exponent
     PGE = 1.6
->>>>>>> master
     capPGE = PGE
     pdemPGE = PGE
     NPOP = 0
@@ -76,13 +70,8 @@ class TrgepProblem(ElementwiseProblem):
             o1 += (self.PF*climp)*((pCtr)**self.PGE)
             o2 += (self.PF*climp)*((pCtr)**self.PGE)
         
-<<<<<<< HEAD
-        #self.genCtr += 1
-        #genCtr = algorithm_old.n_gen
-=======
         self.genCtr +=1
 
->>>>>>> master
         return o1,o2
 
 
@@ -119,8 +108,8 @@ class TrgepProblem(ElementwiseProblem):
 
         #nucp,capp,demp,pdemp,climp = self._penalty(x)
         #nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
-        out["F"] = np.column_stack([f1,f2])
+        #out["F"] = np.column_stack([f1,f2])
         #out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])
-        #out["G"] = np.column_stack([o1, o2])
-        # out["F"] = f1
+        out["F"] = np.column_stack([o1, o2])
+        #out["F"] = o2
 
