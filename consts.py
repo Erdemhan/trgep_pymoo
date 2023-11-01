@@ -36,6 +36,7 @@ def kapasite_hesapla_yil_mwh(inv_genes_v,exist):
 def check_constraints(individual,data):
     global datas
     datas = data
+    temp = individual
     individual = np.array(individual).reshape(32,11)
     demands = data['demand']
     peakDemand = data['peaks']
@@ -114,11 +115,11 @@ def nuclear_constraint(investedNum):
     '''
     fark = 0.0
     key = 181
-    for year in range(16):
-        if investedNum[year][5] != 0:  # 5 for nuclear
-            fark = investedNum[year][5]
-            nucConstraintInd[f'x{key-176:02}'] = 99 #debugging takip için
-            nucConstraintInd[f'x{key:02}'] = fark
+    for year in range(11): # ilk 11 yıl nuc 0, toplam 16 yıl
+        #if investedNum[year][5] != 0:  # 5 for nuclear
+        fark = investedNum[year][5]
+        nucConstraintInd[f'x{key-176:02}'] = 99 #debugging takip için
+        nucConstraintInd[f'x{key:02}'] = fark
         key += 11
     return fark
 
