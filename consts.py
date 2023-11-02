@@ -108,7 +108,7 @@ def construction_limit_constraint(investedNum, constructionLimit):
 
 
 # NUKLEER VIOLATION
-def nuclear_constraint(investedNum):
+def nuclear_constraint(investedNum): 
     '''
     0    1   2   3   4   5   6   7   8   9  10   ... 175
     176 177 178 179 180 181 182 183 184 185 186  ... 351

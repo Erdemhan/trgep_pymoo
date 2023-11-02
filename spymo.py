@@ -23,10 +23,11 @@ from pymoo.algorithms.moo.nsga2 import binary_tournament
 from pymoo.problems import get_problem
 from pymoo.core.callback import Callback
 from pymoo.core.mixed import MixedVariableGA
+import random as rand
 
 # PARAMETERS
-NPOP = 300
-NGEN = 500
+NPOP = 200
+NGEN = 1000
 
 SEED = 1
 
@@ -58,7 +59,8 @@ mutationt = {
 #initial_pop_40
 #best80_2f
 def init_population():
-    pop = Population.new("X", trgeptb.read_population('initial_pop_40.xlsx'))
+    pop = Population.new("X", trgeptb.read_population('best.xlsx'))  
+    # 10 em-opt best.xlsx 
     Evaluator().eval(problem, pop)
     return pop
 
@@ -66,7 +68,7 @@ def init_population():
 # ALGORITHM
 algorithm_old = NSGA2(
                   pop_size=NPOP,
-                  sampling=MixedVariableSampling(), # init_population(), MixedVariableSampling()
+                  sampling=init_population(), # init_population(), MixedVariableSampling()
                   mating=MixedVariableMating(eliminate_duplicates=MixedVariableDuplicateElimination(),
                                              repair=trgeptb.repair()
                                              ),
@@ -76,12 +78,12 @@ algorithm_old = NSGA2(
 
 algorithmMixed = MixedVariableGA(
     pop_size=NPOP,
-    n_offsprings=200,
-    sampling=MixedVariableSampling(), #MixedVariableSampling(), init_population()
+    n_offsprings=100,
+    sampling=init_population(), #MixedVariableSampling(), init_population()
     mating=MixedVariableMating( eliminate_duplicates=MixedVariableDuplicateElimination(),
                                 repair=trgeptb.repair(),
-                                crossover=crossovert,
-                                mutation=mutationt,
+                                #crossover=crossovert,
+                                #mutation=mutationt,
                                 #selection=selectiont,
                               ),
     #sampling= init_population(),
@@ -110,17 +112,34 @@ class convergenceCallback(Callback):
 #algorithm = NSGA2()
 
 # RUN
+""" 
 res = minimize(problem,
-               algorithm_old,
-               #algorithmMixed,
+               #algorithm_old,
+               algorithmMixed,
                ('n_gen', NGEN),
                callback = convergenceCallback(),
                seed = SEED,
                verbose=True)
-
-print(SEED)
+ """
+#print(SEED)
 #trgeptb.pop_to_excel(res.pop)
-trgeptb.show_result(problem,res)
 
+seedList = []
+for m in range(10):
+    SEED = rand.randint(0, 200)
+    seedList.append(SEED)
+    #print(SEED)
 
+    res = minimize(problem,
+               #algorithm_old,
+               algorithmMixed,
+               ('n_gen', NGEN),
+               callback = convergenceCallback(),
+               seed = SEED,
+               verbose=True)
+    trgeptb.show_result(problem,res)
+
+with open('seed_list.txt', 'a') as f:
+    for line in seedList:
+        f.write(f"{line}\n")
 

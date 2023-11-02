@@ -39,11 +39,16 @@ def arr_to_nparr_dict(arr_of_arrs):
 
 # İLK ÇALIŞAN FONKSİYON
 def read(path):
-     pop = pop_as_list(path)
-     pop = flatten(pop)
-     pop = divide(pop)
-     pop = arr_to_nparr_dict(pop)
-     return pop
+    global data
+    pop = pop_as_list(path)
+    pop = flatten(pop)
+    pop = divide(pop)
+    pop = arr_to_nparr_dict(pop)
+    for ctrIndv in range(pop.size): 
+        values = np.array(list(pop[ctrIndv].values()))
+        trgeptb.const_check_debug(values, trgeptb.data)
+        print("------")
+    return pop
 
 
 def pop_to_excel(pop):
@@ -56,3 +61,5 @@ def pop_to_excel(pop):
             gene_list = np.vstack((gene_list,temp))
     df = pd.DataFrame(gene_list)
     df.to_excel(f'best{len(pop)}_2f.xlsx', index=False, header=False)
+
+

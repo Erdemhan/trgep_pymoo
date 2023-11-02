@@ -19,7 +19,7 @@ class TrgepProblem(ElementwiseProblem):
     genCtr = 0 
 
     # BİREYLERİN YAPISININ TANIMI
-    def __init__(self,NPOP, **kwargs):
+    def __init__(self, NPOP, **kwargs):
 
         #read_excel.py ı kullanarak klısıtların olduğu exceldeki verileri alıyor
         data = trgeptb.data
@@ -37,7 +37,7 @@ class TrgepProblem(ElementwiseProblem):
 
         # n_obj ama. sayısı , n_ieq_constr constraint sayısı , 
         #super().__init__(vars=variables, n_obj=2, n_ieq_constr=2, **kwargs)
-        super().__init__(vars=variables, n_obj=2, **kwargs)
+        super().__init__(vars=variables, n_obj=1, n_ieq_constr= 5, **kwargs)
 
 
     # VIOLATIONLARI consts.py 'ı kullanarak hesaplıyor
@@ -48,7 +48,7 @@ class TrgepProblem(ElementwiseProblem):
     
     # VIOLATIONLARI penalty factor ve pge ile çarparak dönderiyor -> bu fonksiyonu evaluate(cost function) çağırıyor
     def _penalty_manuel(self,x,f1=0,f2=0):
-        nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
+        nucp,capp,demp,pdemp,climp,capConstraintDict, nuclearInd = trgeptb.const_check(x,trgeptb.data) #nuclearInd 
         o1 = copy.deepcopy(f1)
         o2 = copy.deepcopy(f2)
         pCtr= (self.genCtr // self.NPOP) + 2
@@ -107,9 +107,10 @@ class TrgepProblem(ElementwiseProblem):
         o1,o2 = self._penalty_manuel(x,f1,f2)
 
         #nucp,capp,demp,pdemp,climp = self._penalty(x)
-        #nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
+        nucp,capp,demp,pdemp,climp,capConstraintDict,nuclearInd = trgeptb.const_check(x,trgeptb.data)
         #out["F"] = np.column_stack([f1,f2])
         #out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])
-        out["F"] = np.column_stack([o1, o2])
+        #out["F"] = np.column_stack([o1, o2])
         #out["F"] = o2
-
+        out["F"] = f2
+        out["G"] = np.column_stack([nucp,capp,demp,pdemp,climp])

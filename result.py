@@ -3,7 +3,7 @@ import numpy as np
 from pymoo.visualization.scatter import Scatter
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import openpyxl
 
 # PRINT RESULT
 def print_result(problem,res):
@@ -13,15 +13,25 @@ def print_result(problem,res):
         draw(problem,res)
     else:
         print_one(res)
-    
+
+
+
 def print_one(res):
+    
+    row = 0
     print("Best solution found ever : \nF = %s " % (res.F))
     x = np.array([res.X[f"x{k:02}"] for k in range(0, 352)])
     print(trgeptb.const_check_debug(x,trgeptb.data))
-    x = trgeptb.reshape_to_matrix(x,is_generation=False)
+    x = trgeptb.save_matrix(x)
+    #df = pd.DataFrame(x)
+    #df.to_excel('best.xlsx', index=False, header=False)
+        
+    wb = openpyxl.load_workbook('best.xlsx')
+    sheet = wb['Sheet1']
+    #print(sheet.max_row)
     df = pd.DataFrame(x)
-    df.to_excel('best.xlsx', index=False, header=False)
-
+    with pd.ExcelWriter("best.xlsx", mode="a", engine="openpyxl",if_sheet_exists='overlay') as writer:
+        df.to_excel(writer, index=False, header=False, sheet_name="Sheet1", startrow=sheet.max_row)  
     
 
 def print_multi(res):

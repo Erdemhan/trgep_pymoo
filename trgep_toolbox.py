@@ -58,6 +58,18 @@ def reshape_to_matrix(vector,is_generation=True,is_full=False):
 
     return matrix
 
+def save_matrix(individual):
+
+    matrix = [ [ 0 for i in range(11) ] for j in range(32) ]
+    ctr = 0
+
+    for i in range(32):
+        for j in range(11):
+            matrix[i][j] = individual[ctr]
+            ctr +=1
+
+    return matrix
+
 
 # consts.py'ı kullanarak violationları hesaplıyor
 def const_check(individual,data):
