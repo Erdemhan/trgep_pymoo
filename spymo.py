@@ -26,9 +26,10 @@ from pymoo.core.mixed import MixedVariableGA
 import random as rand
 
 # PARAMETERS
-NPOP = 200
-NGEN = 1000
+NPOP = 250 #200-300, 300-500, 500-1500  200(pop)-150(offs)
+NGEN = 500
 
+# 500 - 250
 SEED = 1
 
 # DEFINITIONS
@@ -59,8 +60,9 @@ mutationt = {
 #initial_pop_40
 #best80_2f
 def init_population():
-    pop = Population.new("X", trgeptb.read_population('best.xlsx'))  
+    pop = Population.new("X", trgeptb.read_population('initpop_2020 - original.xlsx'))  
     # 10 em-opt best.xlsx 
+    # 10 em-opt 10 cost-opt initpop_2020.xlsx
     Evaluator().eval(problem, pop)
     return pop
 
@@ -68,6 +70,7 @@ def init_population():
 # ALGORITHM
 algorithm_old = NSGA2(
                   pop_size=NPOP,
+                  n_offsprings=200,
                   sampling=init_population(), # init_population(), MixedVariableSampling()
                   mating=MixedVariableMating(eliminate_duplicates=MixedVariableDuplicateElimination(),
                                              repair=trgeptb.repair()
@@ -78,8 +81,8 @@ algorithm_old = NSGA2(
 
 algorithmMixed = MixedVariableGA(
     pop_size=NPOP,
-    n_offsprings=100,
-    sampling=init_population(), #MixedVariableSampling(), init_population()
+    #n_offsprings=100,
+    sampling=MixedVariableSampling(), #MixedVariableSampling(), init_population()
     mating=MixedVariableMating( eliminate_duplicates=MixedVariableDuplicateElimination(),
                                 repair=trgeptb.repair(),
                                 #crossover=crossovert,
@@ -125,14 +128,16 @@ res = minimize(problem,
 #trgeptb.pop_to_excel(res.pop)
 
 seedList = []
-for m in range(10):
+for m in range(5):
     SEED = rand.randint(0, 200)
+    SEED = 54
+    # 135
     seedList.append(SEED)
     #print(SEED)
 
     res = minimize(problem,
-               #algorithm_old,
-               algorithmMixed,
+               algorithm_old,
+               #algorithmMixed,
                ('n_gen', NGEN),
                callback = convergenceCallback(),
                seed = SEED,
