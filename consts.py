@@ -118,7 +118,7 @@ def nuclear_constraint(investedNum):
     for year in range(11): # ilk 11 yıl nuc 0, toplam 16 yıl
         #if investedNum[year][5] != 0:  # 5 for nuclear
         fark = investedNum[year][5]
-        nucConstraintInd[f'x{key-176:02}'] = 99 #debugging takip için
+        nucConstraintInd[f'x{key-176:02}'] = 0 #debugging takip için
         nucConstraintInd[f'x{key:02}'] = fark
         key += 11
     return fark
